@@ -3,22 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Weather App</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            color: #333;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        select, button { padding: 10px; margin: 10px; }
+        #weather { margin-top: 20px; font-size: 18px; }
     </style>
 </head>
 <body>
-    <h1>Hello, World! Phong's site</h1>
+    <h1>Weather App</h1>
+    <label for="city">Select a city:</label>
+    <select id="city">
+        <option value="London">London</option>
+        <option value="New York">New York</option>
+        <option value="Tokyo">Tokyo</option>
+        <option value="Paris">Paris</option>
+    </select>
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="weather"></div>
+
+    <script>
+        async function getWeather() {
+            const apiKey = '7a6fcb24abbfed747d57e54dbb9d1906';
+            const city = document.getElementById('city').value;
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('City not found');
+                const data = await response.json();
+                document.getElementById('weather').innerHTML = 
+                    `Weather in ${city}: ${data.main.temp}°C, ${data.weather[0].description}`;
+            } catch (error) {
+                document.getElementById('weather').innerHTML = 'Error fetching weather data';
+            }
+        }
+    </script>
 </body>
 </html>
