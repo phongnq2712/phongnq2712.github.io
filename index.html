@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather & Currency App</title>
+    <title>Weather, Currency & News App</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
         .tabs { display: flex; justify-content: center; margin-bottom: 20px; }
@@ -11,7 +11,7 @@
         .tab.active { border-bottom: 2px solid #007BFF; font-weight: bold; }
         .content { display: none; }
         .content.active { display: block; }
-        
+
         /* Weather Layout */
         .weather-container {
             display: grid;
@@ -21,7 +21,7 @@
             margin: 0 auto;
             text-align: left;
         }
-        
+
         .weather-item {
             display: flex;
             justify-content: space-between;
@@ -43,16 +43,22 @@
         /* Currency Converter */
         .converter { margin-top: 20px; }
         .converter input, .converter select, .converter button { padding: 10px; margin: 5px; }
+
+        /* News Section */
+        .news-container { width: 600px; margin: 0 auto; text-align: left; }
+        .news-item { padding: 10px; border-bottom: 1px solid #ddd; }
+        .news-item a { text-decoration: none; color: #007BFF; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Weather & Currency App</h1>
+    <h1>Weather, Currency & News App</h1>
     
     <!-- Tabs -->
     <div class="tabs">
         <div class="tab active" onclick="switchTab('weather')">Weather</div>
         <div class="tab" onclick="switchTab('currency')">Currency Converter</div>
+        <div class="tab" onclick="switchTab('news')">Latest News</div>
     </div>
 
     <!-- Weather Tab -->
@@ -69,10 +75,19 @@
                 <option value="CAD">CAD</option>
                 <option value="USD">USD</option>
                 <option value="AUD">AUD</option>
+                <option value="NZD">NZD</option>
             </select>
             <button onclick="convertCurrency()">Convert</button>
         </div>
         <div id="conversion-result"></div>
+    </div>
+
+    <!-- News Tab -->
+    <div id="news" class="content">
+        <div class="news-container">
+            <h2>Latest VNExpress News</h2>
+            <div id="news-list">Loading news...</div>
+        </div>
     </div>
 
     <script>
@@ -91,7 +106,7 @@
 
         async function fetchWeather() {
             const weatherList = document.getElementById('weather-list');
-            weatherList.innerHTML = ''; // Clear previous data
+            weatherList.innerHTML = ''; 
 
             for (let city of cities) {
                 const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city.name}&units=metric&appid=${weatherAPIKey}`;
@@ -104,7 +119,6 @@
                     const currentTemp = data.list[0].main.temp;
                     const description = data.list[0].weather[0].description;
                     
-                    // Get next 3 days forecast (every 8th index ~ 24 hours interval)
                     const forecast = data.list.slice(8, 32, 8).map(f => `${f.main.temp}°C`).slice(0, 3).join(" | ");
 
                     const weatherItem = document.createElement('div');
@@ -153,15 +167,44 @@
             }
         }
 
+        async function fetchNews() {
+            const url = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://vnexpress.net/rss/tin-moi-nhat.rss");
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Error fetching news.");
+
+                const data = await response.json(); // Convert to JSON
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml"); // Extract XML content
+
+                // Extract news items
+                const items = xmlDoc.querySelectorAll("item");
+                let newsHtml = "";
+
+                items.forEach((item, index) => {
+                    if (index < 5) { // Limit to 5 news articles
+                        const title = item.querySelector("title").textContent;
+                        const link = item.querySelector("link").textContent;
+                        newsHtml += `<p><a href="${link}" target="_blank">${title}</a></p>`;
+                    }
+                });
+
+                document.getElementById("news").innerHTML = newsHtml;
+            } catch (error) {
+                document.getElementById("news").innerHTML = "Error fetching news.";
+            }
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
-
-            document.querySelector(`.tab:nth-child(${tabName === 'weather' ? 1 : 2})`).classList.add('active');
+            document.querySelector(`.tab:nth-child(${tabName === 'weather' ? 1 : tabName === 'currency' ? 2 : 3})`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
+            if (tabName === 'news') fetchNews();
         }
 
-        fetchWeather(); // Load weather on startup
+        fetchWeather();
     </script>
 
 </body>
