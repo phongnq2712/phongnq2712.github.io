@@ -3,41 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Weather & Currency App</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        select, button { padding: 10px; margin: 10px; }
-        #weather { margin-top: 20px; font-size: 18px; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom: 2px solid #007BFF; font-weight: bold; }
+        .content { display: none; }
+        .content.active { display: block; }
+        
+        /* Weather Layout */
+        .weather-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .weather-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .city-info { display: flex; align-items: center; }
+        .city-flag { font-size: 24px; margin-right: 10px; }
+        .city-name { font-weight: bold; font-size: 18px; }
+
+        .weather-info { font-size: 16px; text-align: right; }
+        .temp-current { font-weight: bold; color: #ff6600; }
+
+        /* Currency Converter */
+        .converter { margin-top: 20px; }
+        .converter input, .converter select, .converter button { padding: 10px; margin: 5px; }
     </style>
 </head>
 <body>
-    <h1>Weather App</h1>
-    <label for="city">Select a city:</label>
-    <select id="city">
-        <option value="London">London</option>
-        <option value="New York">New York</option>
-        <option value="Tokyo">Tokyo</option>
-        <option value="Paris">Paris</option>
-    </select>
-    <button onclick="getWeather()">Get Weather</button>
-    <div id="weather"></div>
+
+    <h1>Weather & Currency App</h1>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('weather')">Weather</div>
+        <div class="tab" onclick="switchTab('currency')">Currency Converter</div>
+    </div>
+
+    <!-- Weather Tab -->
+    <div id="weather" class="content active">
+        <div id="weather-list"></div>
+    </div>
+
+    <!-- Currency Converter Tab -->
+    <div id="currency" class="content">
+        <div class="converter">
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" placeholder="Enter amount">
+            <select id="currency-type">
+                <option value="CAD">CAD</option>
+                <option value="USD">USD</option>
+                <option value="AUD">AUD</option>
+            </select>
+            <button onclick="convertCurrency()">Convert</button>
+        </div>
+        <div id="conversion-result"></div>
+    </div>
 
     <script>
-        async function getWeather() {
-            const apiKey = '7a6fcb24abbfed747d57e54dbb9d1906';
-            const city = document.getElementById('city').value;
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
-            
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('City not found');
-                const data = await response.json();
-                document.getElementById('weather').innerHTML = 
-                    `Weather in ${city}: ${data.main.temp}°C, ${data.weather[0].description}`;
-            } catch (error) {
-                document.getElementById('weather').innerHTML = 'Error fetching weather data';
+        const cities = [
+            { name: "Nha Trang", country: "VN", flag: "🇻🇳" },
+            { name: "Ho Chi Minh", country: "VN", flag: "🇻🇳" },
+            { name: "Toronto", country: "CA", flag: "🇨🇦" },
+            { name: "New York", country: "US", flag: "🇺🇸" },
+            { name: "San Diego", country: "US", flag: "🇺🇸" },
+            { name: "Auckland", country: "NZ", flag: "🇳🇿" },
+            { name: "Sydney", country: "AU", flag: "🇦🇺" }
+        ];
+
+        const weatherAPIKey = '7a6fcb24abbfed747d57e54dbb9d1906';
+        const currencyAPIKey = 'cbf6f683bd10c0457fe9f089';
+
+        async function fetchWeather() {
+            const weatherList = document.getElementById('weather-list');
+            weatherList.innerHTML = ''; // Clear previous data
+
+            for (let city of cities) {
+                const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city.name}&units=metric&appid=${weatherAPIKey}`;
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('City not found');
+                    const data = await response.json();
+                    
+                    const currentTemp = data.list[0].main.temp;
+                    const description = data.list[0].weather[0].description;
+                    
+                    // Get next 3 days forecast (every 8th index ~ 24 hours interval)
+                    const forecast = data.list.slice(8, 32, 8).map(f => `${f.main.temp}°C`).slice(0, 3).join(" | ");
+
+                    const weatherItem = document.createElement('div');
+                    weatherItem.className = 'weather-item';
+                    weatherItem.innerHTML = `
+                        <div class="city-info">
+                            <span class="city-flag">${city.flag}</span> 
+                            <span class="city-name">${city.name}</span>
+                        </div>
+                        <div class="weather-info">
+                            <span class="temp-current">${currentTemp}°C</span>, ${description}<br>
+                            <small>Next Days: ${forecast}</small>
+                        </div>
+                    `;
+                    
+                    weatherList.appendChild(weatherItem);
+                    setTimeout(() => {
+                        weatherItem.style.opacity = 1;
+                        weatherItem.style.transform = 'translateY(0)';
+                    }, 100);
+                } catch (error) {
+                    console.error('Weather fetch error:', error);
+                }
             }
         }
+
+        async function convertCurrency() {
+            const amount = document.getElementById('amount').value;
+            const currency = document.getElementById('currency-type').value;
+            const url = `https://v6.exchangerate-api.com/v6/${currencyAPIKey}/latest/${currency}`;
+
+            if (!amount) {
+                document.getElementById('conversion-result').innerHTML = "Please enter an amount.";
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Currency data not found');
+                const data = await response.json();
+                const rate = data.conversion_rates.VND;
+                const converted = (amount * rate).toFixed(2);
+                document.getElementById('conversion-result').innerHTML = `${amount} ${currency} = ${converted} VND`;
+            } catch (error) {
+                document.getElementById('conversion-result').innerHTML = "Error fetching exchange rates.";
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`.tab:nth-child(${tabName === 'weather' ? 1 : 2})`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        fetchWeather(); // Load weather on startup
     </script>
+
 </body>
 </html>
