@@ -1,0 +1,42 @@
+body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+.tabs { display: flex; justify-content: center; margin-bottom: 20px; }
+.tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab.active { border-bottom: 2px solid #007BFF; font-weight: bold; }
+.content { display: none; }
+.content.active { display: block; }
+
+/* Weather Layout */
+.weather-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.weather-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.city-info { display: flex; align-items: center; }
+.city-flag { font-size: 24px; margin-right: 10px; }
+.city-name { font-weight: bold; font-size: 18px; }
+.weather-info { font-size: 16px; text-align: right; }
+.temp-current { font-weight: bold; color: #ff6600; }
+
+/* Currency Converter */
+.converter { margin-top: 20px; }
+.converter input, .converter select, .converter button { padding: 10px; margin: 5px; }
+
+/* News Section */
+.news-container { width: 600px; margin: 0 auto; text-align: left; }
+.news-item { padding: 10px; border-bottom: 1px solid #ddd; }
+.news-item a { text-decoration: none; color: #007BFF; font-weight: bold; }
