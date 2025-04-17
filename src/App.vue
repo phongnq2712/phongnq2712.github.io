@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Weather, Currency & News App</h1>
-    <h3>Github Actions CI/CD - build automatically</h3>
+    <h3>Github Actions CI/CD - build automatically.</h3>
     <div class="tabs">
       <div :class="['tab', currentTab === 'weather' && 'active']" @click="currentTab = 'weather'">Weather</div>
       <div :class="['tab', currentTab === 'currency' && 'active']" @click="currentTab = 'currency'">Currency</div>
