@@ -5,12 +5,12 @@
       <p v-if="loading">Loading news...</p>
       <p v-if="error" class="error">{{ error }}</p>
       <div v-if="!loading && !error">
-        <p v-for="(item, index) in news" :key="index">
+        <div v-for="(item, index) in news" :key="index" class="news-item">
           <a :href="item.link" target="_blank">
             <img v-if="item.image" :src="item.image" alt="news image" />
             {{ item.title }}
           </a>
-        </p>
+        </div>
       </div>
     </div>
   </div>
