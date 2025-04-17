@@ -6,7 +6,10 @@
       <p v-if="error" class="error">{{ error }}</p>
       <div v-if="!loading && !error">
         <p v-for="(item, index) in news" :key="index">
-          <a :href="item.link" target="_blank">{{ item.title }}</a>
+          <a :href="item.link" target="_blank">
+            <img v-if="item.image" :src="item.image" alt="news image" />
+            {{ item.title }}
+          </a>
         </p>
       </div>
     </div>
@@ -39,10 +42,25 @@ export default {
         const xmlDoc = parser.parseFromString(data.contents, "text/xml");
 
         const items = xmlDoc.querySelectorAll("item");
-        this.news = Array.from(items).slice(0, 5).map(item => ({
-          title: item.querySelector("title").textContent,
-          link: item.querySelector("link").textContent
-        }));
+        this.news = Array.from(items).slice(0, 5).map(item => {
+          const title = item.querySelector("title").textContent;
+          const link = item.querySelector("link").textContent;
+
+          const mediaContent = item.querySelector("media\\:content");
+          const mediaThumbnail = item.querySelector("media\\:thumbnail");
+          const enclosure = item.querySelector("enclosure");
+
+          let image = "";
+          if (mediaContent) {
+            image = mediaContent.getAttribute("url");
+          } else if (mediaThumbnail) {
+            image = mediaThumbnail.getAttribute("url");
+          } else if (enclosure && enclosure.getAttribute("type").startsWith("image")) {
+            image = enclosure.getAttribute("url");
+          }
+
+          return { title, link, image };
+        });
 
         this.loading = false;
       } catch (err) {
