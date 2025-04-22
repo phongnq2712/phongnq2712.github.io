@@ -239,14 +239,81 @@ class PaymentService {
 			</ul>
 		</div>
 
-		<div v-else-if="activeTab === 'MySQL'">
-			<h3>🛢️ MySQL Notes</h3>
-			<ul>
-				<li>CRUD: SELECT, INSERT, UPDATE, DELETE</li>
-				<li>JOINs: INNER, LEFT, RIGHT</li>
-				<li>Indexes and normalization</li>
-			</ul>
-		</div>
+		<div v-else-if="activeTab === 'LeetCode'">
+			<h3>LeetCode Solutions</h3>
+				<h4 @click="toggleCollapse('solid')" class="collapsible-header">
+						<span>{{ isCollapsed?.solid ? '➕' : '➖' }}</span>
+						Group Anagrams 🚀
+					</h4>
+					<div v-show="!isCollapsed.solid" class="collapsible-content">
+						<p class="sub-content">
+							Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+							<br/>
+							<span class="tit-2">Example 1:</span>
+							<span class="tit-2">
+								Input: strs = ["eat","tea","tan","ate","nat","bat"]
+								<br/>
+								Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+							</span>
+							<span class="tit-2">
+								Explanation:
+
+							There is no string in strs that can be rearranged to form "bat".
+							The strings "nat" and "tan" are anagrams as they can be rearranged to form each other.
+							The strings "ate", "eat", and "tea" are anagrams as they can be rearranged to form each other.
+							</span>
+							<span class="tit-2">Example 2:</span>
+							<span class="tit-2">
+							Input: strs = [""]
+
+							Output: [[""]]
+							</span>
+
+							<span class="tit-2">Example 3:</span>
+							<span class="tit-2">
+							Input: strs = ["a"]
+
+							Output: [["a"]]
+							</span>
+
+							<span class="tit-2">Solution:</span>
+							<span class="tit-2">Simply, if we can sort each character of each string, we can group them.</span>
+							<pre class="code-style">
+								"eat"   →   "aet"
+								"tea"   →   "aet"
+								"tan"   →   "ant"
+								"ate"   →   "aet"
+								"nat"   →   "ant"
+								"bat"   →   "abt"
+
+								"aet": ["eat", "tea", "ate"] 
+								"ant": ["tan", "nat"]
+								"bat": ["abt"]
+							</pre>
+							<span class="tit-2">We can create 3 groups with "aet", "ant" and "abt".</span>
+							<pre class="code-style">
+class Solution {
+    public List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs) {
+		Map&lt;String, List&lt;String&gt;&gt; ans = new HashMap&lt;&gt;();
+        
+
+    for (String s : strs) {
+        char[] chars = s.toCharArray();
+        Arrays.sort(chars);
+        String key = new String(chars);
+        if (!ans.containsKey(key)) {
+            ans.put(key, new ArrayList&lt;&gt;());
+        }
+        ans.get(key).add(s);
+    }
+
+    return new ArrayList&lt;&gt;(ans.values());
+    }
+}
+							</pre>
+						</p>
+						</div>
+			</div>
 	</div>
 </div>
 </template>
@@ -256,7 +323,7 @@ class PaymentService {
 		name: "TechNotes",
 		data() {
 			return {
-				tabs: ["Java", "PHP", "MySQL"],
+				tabs: ["Java", "Magento", "LeetCode"],
 				activeTab: "Java",
 				isCollapsed: {
 					solid: true
