@@ -227,6 +227,37 @@ class PaymentService {
 						</p>
 					</div>
 				</li>
+				<li>
+					<h4 @click="toggleCollapse('gc')" class="collapsible-header">
+						<span>{{ isCollapsed?.gc ? '➕' : '➖' }}</span>
+						Garbage Collector 🚀
+					</h4>
+					<div v-show="!isCollapsed.gc" class="collapsible-content">
+						<p class="sub-content">
+							<pre class="code-style">
+Employee emp1 = new Employee(); // Object A is created, emp1 → A
+Employee emp2 = new Employee(); // Object B is created, emp2 → B
+emp1 = emp2;                    // emp1 now → B (not A anymore)
+emp2 = null;                    // emp2 → null, but emp1 still → B
+
+What’s happening in memory:
+Variable	Before line 3	After line 3	After line 4
+emp1		→ Object A	→ Object B	→ Object B
+emp2		→ Object B	→ Object B	→ null
+
+When you write emp1 = emp2;, you are reassigning emp1 to point to the same object that emp2 points to (Object B). After that:
+
+Object A is no longer pointed to by any variable
+
+emp1 now points to Object B
+
+So Object A is unreachable → eligible for GC
+
+emp1 is still valid, pointing to Object B.
+							</pre>
+						</p>
+					</div>
+				</li>
 			</ul>
 		</div>
 
